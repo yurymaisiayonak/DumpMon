@@ -1,4 +1,4 @@
-﻿Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
+﻿Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 #ftp settings
 $ftpLogin = ""
@@ -9,7 +9,7 @@ $ftpRemoteFolder = "/TickTrader/AdminTools/dumps"
 
 
 #list of processes and thresholdes
-$processes = @("ordercleaner.vshost.exe","devenv.exe")
+$processes = @("devenv.exe")
 $threshold = 20000000 #in bytes
 
 #for email sending

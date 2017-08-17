@@ -1,5 +1,5 @@
 ﻿$currentDate = (Get-Date).Day.ToString()+"-"+(Get-Date).Month.ToString()+"-"+(Get-Date).Year.ToString()+"-"+(Get-Date).Hour.ToString()+"-"+(Get-Date).Minute.ToString()+"-"+(Get-Date).Second.ToString()
-$scriptLogFile = "Logs\DumpScriptLog_$currentDate.txt"
+$scriptLogFile = "$scriptFolder\Logs\DumpScriptLog_$currentDate.txt"
 
 $global:messageToSend = ""
 $global:dumpCount = @()
@@ -70,7 +70,8 @@ function CheckAndDump($process,$memory,$threshold,$processId)
     if($memory -gt $threshold)
     {
         #&"$scriptFolder\procdump.exe" "$process"
-        $procdump = Start-Process -FilePath "$scriptFolder\procdump.exe"  -ArgumentList "$processId" -NoNewWindow -Wait -PassThru
+        log "Info:" "Process $process use $memory bytes with $threshold threshold"
+        $procdump = Start-Process -FilePath "$scriptFolder\procdump.exe"  -ArgumentList "$processId" -Wait -PassThru -NoNewWindow
         if($procdump.ExitCode -ne -2 -and $procdump.ExitCode -ne 1)
         {
             log "Info:" "Dump of $process wasn't created"
@@ -125,7 +126,7 @@ try
     {
         $global:messageToSend = $global:messageToSend + "No necessity in uploading`n"
         log "Info:" "No necessity in uploading"
-    }  
+    }
     sendEmail $emailsToSend "Result: SUCCESS" "$global:messageToSend"
 }
 catch
