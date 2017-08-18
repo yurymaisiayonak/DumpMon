@@ -60,9 +60,9 @@ function ProcessInfo($processName,$threshold)
     }
     foreach($res in $result)
     {
-        CheckAndDump $processName $res.PrivatePageCount $threshold $res.ProcessId
-        $global:dumpCount += $result.Count
+        CheckAndDump $processName $res.PrivatePageCount $threshold $res.ProcessId        
     }
+    $global:dumpCount += $result.Count
 }
 
 function CheckAndDump($process,$memory,$threshold,$processId)
@@ -107,7 +107,7 @@ try
     Move-Item "$scriptFolder\*.dmp" "$scriptFolder\Dumps"
     for($i=0; $i -lt $processes.Count; $i++)
     {
-        $process = $processes[$i].Substring(0,5)
+        $process = $processes[$i].ToLower()
         checkFileCount "$process" "$scriptFolder\Dumps" $global:dumpCount[$i]
     }
     $command1 = "open ftps://${ftpLogin}:$ftpPassword@$ftpAddress/"
