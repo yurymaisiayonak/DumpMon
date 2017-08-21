@@ -55,7 +55,7 @@ function ProcessInfo($processName,$threshold)
     if($result -eq $null)
     {
         log "Info:" "Process $processName not found"
-        $global:dumpCount += 1
+        $global:dumpCount += 0
         return
     }
     if($result.PrivatePageCount.getType().name -eq "UInt64")
