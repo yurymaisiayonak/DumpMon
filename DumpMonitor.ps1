@@ -8,7 +8,7 @@ $global:upload = $false
 function checkFileCount($string, $path,$count)
 {
     $backupCount = Get-ChildItem -filter "$string*" -path $path | Measure-Object | Select -ExpandProperty Count
-    while($backupCount -gt $count)
+    while($backupCount -gt $count -and $count -ne $null)
     {
         Get-ChildItem -filter "$string*" -path $path | Sort CreationTime | Select -First 1 | Remove-Item
         $backupCount = Get-ChildItem -filter "$string*" -path $path | Measure-Object | Select -ExpandProperty Count
@@ -52,6 +52,11 @@ function log($type, $string)
 function ProcessInfo($processName,$threshold)
 {
     $result = Get-WmiObject win32_process -Filter "name='$processName'"
+    if($result -eq $null)
+    {
+        log "Info:" "Process $processName not found"
+        return
+    }
     if($result.PrivatePageCount.getType().name -eq "UInt64")
     {
         CheckAndDump $processName $result.PrivatePageCount $threshold $result.ProcessId
