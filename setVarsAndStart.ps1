@@ -1,5 +1,9 @@
 ﻿Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
+#count of info that stored at the same time
+$countOfDumps = 2
+$countOfLogs = 2
+
 #ftp settings
 $ftpLogin = ""
 $ftpPassword = ""
@@ -9,8 +13,8 @@ $ftpRemoteFolder = "/TickTrader/AdminTools/dumps"
 
 
 #list of processes and thresholdes
-$processes = @("devenv.exe")
-$threshold = 20000000 #in bytes
+$processes = @("devenv.exe","notepad.exe")
+$threshold = 20000 #in bytes
 
 #for email sending
 $emailsToSend = "yahor.mazko@soft-fx.lv"

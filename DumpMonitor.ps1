@@ -15,6 +15,17 @@ function checkFileCount($string, $path,$count)
     }
 }
 
+function checkFolderCount($string, $path,$count)
+{
+    $backupCount = Get-ChildItem -filter "$string*" -path $path -Directory| Measure-Object | Select -ExpandProperty Count
+    while($backupCount -gt $count -and $count -ne $null)
+    {
+        Get-ChildItem -filter "$string*" -path $path -Directory| Sort CreationTime | Select -First 1 | Remove-Item -Recurse
+        $backupCount = Get-ChildItem -filter "$string*" -path $path -Directory| Measure-Object | Select -ExpandProperty Count
+    }
+}
+
+
 function sendEmail($to_, $result_, $body_)
 {
 	try
@@ -49,6 +60,21 @@ function log($type, $string)
    $dateString | out-file -Filepath "$scriptLogFile" -append
 }
 
+function moveToFolder($processName)
+{
+    $folder = $processName.ToLower()
+    if(-Not (Test-Path "$scriptFolder\Dumps\$folder"))
+    {
+        New-Item "$scriptFolder\Dumps\$folder" -type directory
+    }
+    if(-Not (Test-Path "$scriptFolder\Dumps\$folder\$currentDate"))
+    {
+        New-Item "$scriptFolder\Dumps\$folder\$currentDate" -type directory
+    }   
+    Move-Item "$scriptFolder\*.dmp" "$scriptFolder\Dumps\$folder\$currentDate"
+    checkFolderCount "" "$scriptFolder\Dumps\$folder" $countOfDumps
+}
+
 function ProcessInfo($processName,$threshold)
 {
     $result = Get-WmiObject win32_process -Filter "name='$processName'"
@@ -62,6 +88,7 @@ function ProcessInfo($processName,$threshold)
     {
         CheckAndDump $processName $result.PrivatePageCount $threshold $result.ProcessId
         $global:dumpCount += 1
+        moveToFolder $processName
         return
     }
     foreach($res in $result)
@@ -69,6 +96,7 @@ function ProcessInfo($processName,$threshold)
         CheckAndDump $processName $res.PrivatePageCount $threshold $res.ProcessId        
     }
     $global:dumpCount += $result.Count
+    moveToFolder $processName
 }
 
 function CheckAndDump($process,$memory,$threshold,$processId)
@@ -109,8 +137,8 @@ try
         log "Info:" "Checking process $process with threshold $threshold"
         ProcessInfo $process $threshold
     }
-    checkFileCount "DumpScriptLog" "$scriptFolder\Logs" 1
-    Move-Item "$scriptFolder\*.dmp" "$scriptFolder\Dumps"
+    checkFileCount "DumpScriptLog" "$scriptFolder\Logs" $countOfLogs 
+    #Move-Item "$scriptFolder\*.dmp" "$scriptFolder\Dumps"
     for($i=0; $i -lt $processes.Count; $i++)
     {
         $process = $processes[$i].ToLower()
